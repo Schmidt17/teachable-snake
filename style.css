@@ -1,0 +1,22 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: black;
+}
+
+canvas {
+  display: block;
+}
+
+#score {
+  font-family: Arial;
+  font-size: 24pt;
+  color: #ffffff;
+  display: inline-block;
+  position: absolute;
+  left: 780px;
+  top: 53px;
+}
