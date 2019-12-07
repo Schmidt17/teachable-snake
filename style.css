@@ -12,6 +12,7 @@ canvas {
 }
 
 #score {
+  visibility: hidden;
   font-family: Arial;
   font-size: 24pt;
   color: #ffffff;
@@ -22,6 +23,19 @@ canvas {
 }
 
 #direction {
+  visibility: hidden;
+  font-family: Arial;
+  font-size: 24pt;
+  color: #ffffff;
+  display: inline-block;
+  position: absolute;
+  left: 780px;
+  top: 103px;
+}
+
+#init {
+  visibility: hidden;
+  z-index: 100;
   font-family: Arial;
   font-size: 24pt;
   color: #ffffff;

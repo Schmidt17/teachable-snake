@@ -4,14 +4,15 @@ let classifier;
 // Teachable Machine model URL:
 let soundModel = 'https://teachablemachine.withgoogle.com/models/82Y5yAEQ/model.json';
 
-let apple;
+let apple, headImg;
 
 function preload() {
   // Load the model
   classifier = ml5.soundClassifier(soundModel, {invokeCallbackOnNoiseAndUnknown: true, overlapFactor: 0.4});
   // bgImage = loadImage("bg.jpg");
   // bgImage.resize(width, height);
-  apple = loadImage("https://cdn.icon-icons.com/icons2/16/PNG/256/fruit_apple_food_1815.png");
+  apple = loadImage("apple.png");
+  headImg = loadImage("head.png");
   apple.resize(17, 17)
 }
 
@@ -20,7 +21,7 @@ let currentDirection;
 let fieldSize, paintSize, offset;
 let foodLocation;
 let N;
-let bgImage, scoreDiv, directionDiv;
+let bgImage, scoreDiv, directionDiv, initDiv;
 let stars;
 
 let actionQueue;
@@ -39,10 +40,15 @@ function setup() {
   cnv.position(x, y);
 
   directionDiv = document.getElementById("direction");
+  initDiv = document.getElementById("init");
+  initDiv.style.left = int(x + width/2 - initDiv.scrollWidth/2) + "px";
+  initDiv.style.top = int(y + height/2 - initDiv.scrollHeight/2) + "px";
+  initDiv.style.visibility = 'visible';
 
   scoreDiv = document.getElementById("score");
-  scoreDiv.style.left = x + width + 40;
-  scoreDiv.style.top = y;
+  scoreDiv.style.left = int(x + width + 40) + "px";
+  scoreDiv.style.top = int(y) + "px";
+  scoreDiv.style.visibility = 'visible';
 
   rectMode(CENTER);
 
@@ -153,9 +159,14 @@ function drawFood() {
 function drawSnake() {
   noStroke();
   fill(0, 100, 0);
-  for (let p of snake) {
-  	rect(fieldSize * p.x + offset, fieldSize * p.y + offset, paintSize, paintSize)
+  for (let i=1; i < snake.length; i++) {
+  	rect(fieldSize * snake[i].x + offset, fieldSize * snake[i].y + offset, paintSize, paintSize)
   }
+
+  // draw head as image
+  // draw it last so it is on top of the segments
+  // image(headImg, fieldSize * snake[0].x + offset - 10, fieldSize * snake[0].y + offset - 13, fieldSize+2, fieldSize+2);
+  image(headImg, fieldSize * snake[0].x + offset - 10, fieldSize * snake[0].y + offset - 13, fieldSize+5, fieldSize+5);
 }
 
 function moveSnake() {
@@ -229,35 +240,40 @@ function isInSnake(p) {
 }
 
 function gotResult(error, results){
-	let maxCon = 0.;
-	let maxIndex = 0;
+	if (error) {
+		console.log(error);
+	} else {
+		let maxCon = 0.;
+		let maxIndex = 0;
 
-	for (let i=0; i<results.length; i++) {
-		if (results[i].confidence > maxCon) {
-			maxCon = results[i].confidence;
-			maxIndex = i;
+		for (let i=0; i<results.length; i++) {
+			if (results[i].confidence > maxCon) {
+				maxCon = results[i].confidence;
+				maxIndex = i;
+			}
 		}
-	}
 
-	// threshold probability for not being noise
-	let threshold = 0.98;
-	if ((maxIndex > 0) && (maxCon < threshold)) {
-		maxIndex = 0;
-	}
+		// threshold probability for not being noise
+		let threshold = 0.98;
+		if ((maxIndex > 0) && (maxCon < threshold)) {
+			maxIndex = 0;
+		}
 
-	if (results[maxIndex].label == "RIGHT") {
-		actionQueue.push(0);
-	} else if (results[maxIndex].label == "UP") {
-		actionQueue.push(1);
-	} else if (results[maxIndex].label == "LEFT") {
-		actionQueue.push(2);
-	} else if (results[maxIndex].label == "DOWN") {
-		actionQueue.push(3);
-	}
+		if (results[maxIndex].label == "RIGHT") {
+			actionQueue.push(0);
+		} else if (results[maxIndex].label == "UP") {
+			actionQueue.push(1);
+		} else if (results[maxIndex].label == "LEFT") {
+			actionQueue.push(2);
+		} else if (results[maxIndex].label == "DOWN") {
+			actionQueue.push(3);
+		}
 
-	directionDiv.innerHTML = results[maxIndex].label;
+		directionDiv.innerHTML = results[maxIndex].label;
+	}
 
 	if (mode == 'load') {
+		initDiv.style.visibility = 'hidden';
 		mode = 'play';
 	}
 }
