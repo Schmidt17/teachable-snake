@@ -20,3 +20,13 @@ canvas {
   left: 780px;
   top: 53px;
 }
+
+#direction {
+  font-family: Arial;
+  font-size: 24pt;
+  color: #ffffff;
+  display: inline-block;
+  position: absolute;
+  left: 780px;
+  top: 103px;
+}

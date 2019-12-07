@@ -2,13 +2,13 @@
 let classifier;
 
 // Teachable Machine model URL:
-let soundModel = 'https://teachablemachine.withgoogle.com/models/k6dNsJlO/model.json';
+let soundModel = 'https://teachablemachine.withgoogle.com/models/82Y5yAEQ/model.json';
 
 let apple;
 
 function preload() {
   // Load the model
-  // classifier = ml5.soundClassifier(soundModel);
+  classifier = ml5.soundClassifier(soundModel, {invokeCallbackOnNoiseAndUnknown: true, overlapFactor: 0.4});
   // bgImage = loadImage("bg.jpg");
   // bgImage.resize(width, height);
   apple = loadImage("https://cdn.icon-icons.com/icons2/16/PNG/256/fruit_apple_food_1815.png");
@@ -20,7 +20,7 @@ let currentDirection;
 let fieldSize, paintSize, offset;
 let foodLocation;
 let N;
-let bgImage, scoreDiv;
+let bgImage, scoreDiv, directionDiv;
 let stars;
 
 let actionQueue;
@@ -37,6 +37,8 @@ function setup() {
   var x = (windowWidth - width) / 2;
   var y = (windowHeight - height) / 2;
   cnv.position(x, y);
+
+  directionDiv = document.getElementById("direction");
 
   scoreDiv = document.getElementById("score");
   scoreDiv.style.left = x + width + 40;
@@ -56,7 +58,7 @@ function setup() {
   						new Point(-1, 0),
   						new Point(0, 1)];
 
-  mode = 'play';
+  mode = 'load';
 
   initializeGame();
 
@@ -64,11 +66,13 @@ function setup() {
   drawFood();
   drawSnake();
 
-  // classifier.classify(gotResult);
+  classifier.classify(gotResult);
 }
 
 function draw() {
-  if (mode == 'play') {
+  if (mode == 'load') {
+  	  background(0, 40, 0);
+  } else if (mode == 'play') {
   	  // update game state
 	  executeAction();
 	  moveSnake();
@@ -225,5 +229,35 @@ function isInSnake(p) {
 }
 
 function gotResult(error, results){
-	console.log(results);
+	let maxCon = 0.;
+	let maxIndex = 0;
+
+	for (let i=0; i<results.length; i++) {
+		if (results[i].confidence > maxCon) {
+			maxCon = results[i].confidence;
+			maxIndex = i;
+		}
+	}
+
+	// threshold probability for not being noise
+	let threshold = 0.98;
+	if ((maxIndex > 0) && (maxCon < threshold)) {
+		maxIndex = 0;
+	}
+
+	if (results[maxIndex].label == "RIGHT") {
+		actionQueue.push(0);
+	} else if (results[maxIndex].label == "UP") {
+		actionQueue.push(1);
+	} else if (results[maxIndex].label == "LEFT") {
+		actionQueue.push(2);
+	} else if (results[maxIndex].label == "DOWN") {
+		actionQueue.push(3);
+	}
+
+	directionDiv.innerHTML = results[maxIndex].label;
+
+	if (mode == 'load') {
+		mode = 'play';
+	}
 }
