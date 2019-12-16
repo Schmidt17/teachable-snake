@@ -2,13 +2,14 @@
 let classifier;
 
 // Teachable Machine model URL:
-let soundModel = 'https://teachablemachine.withgoogle.com/models/82Y5yAEQ/model.json';
+// let soundModel = 'https://teachablemachine.withgoogle.com/models/82Y5yAEQ/model.json';
+let soundModel = 'https://teachablemachine.withgoogle.com/models/ZOeMc4-H/model.json';
 
 let apple, headImg;
 
 function preload() {
   // Load the model
-  classifier = ml5.soundClassifier(soundModel, {invokeCallbackOnNoiseAndUnknown: true, overlapFactor: 0.4});
+  classifier = ml5.soundClassifier(soundModel, {invokeCallbackOnNoiseAndUnknown: true, overlapFactor: 0.9});
   // bgImage = loadImage("bg.jpg");
   // bgImage.resize(width, height);
   apple = loadImage("apple.png");
@@ -23,6 +24,7 @@ let foodLocation;
 let N;
 let bgImage, scoreDiv, directionDiv, initDiv;
 let stars;
+let amplitude, microp, audiocontext;
 
 let actionQueue;
 let mode;
@@ -39,7 +41,7 @@ function setup() {
   var y = (windowHeight - height) / 2;
   cnv.position(x, y);
 
-  directionDiv = document.getElementById("direction");
+  // directionDiv = document.getElementById("direction");
   initDiv = document.getElementById("init");
   initDiv.style.left = int(x + width/2 - initDiv.scrollWidth/2) + "px";
   initDiv.style.top = int(y + height/2 - initDiv.scrollHeight/2) + "px";
@@ -71,7 +73,7 @@ function setup() {
   frameRate(5);
   drawFood();
   drawSnake();
-
+  
   classifier.classify(gotResult);
 }
 
@@ -243,33 +245,22 @@ function gotResult(error, results){
 	if (error) {
 		console.log(error);
 	} else {
-		let maxCon = 0.;
-		let maxIndex = 0;
-
-		for (let i=0; i<results.length; i++) {
-			if (results[i].confidence > maxCon) {
-				maxCon = results[i].confidence;
-				maxIndex = i;
+		// threshold probability for not being noise
+		let threshold = 0.6;
+		if (!((results[0].label != "_background_noise_") && (results[0].confidence < threshold))) {
+			
+			if (results[0].label == "RIGHT") {
+				actionQueue.push(0);
+			} else if (results[0].label == "UP") {
+				actionQueue.push(1);
+			} else if (results[0].label == "LEFT") {
+				actionQueue.push(2);
+			} else if (results[0].label == "DOWN") {
+				actionQueue.push(3);
 			}
 		}
 
-		// threshold probability for not being noise
-		let threshold = 0.98;
-		if ((maxIndex > 0) && (maxCon < threshold)) {
-			maxIndex = 0;
-		}
-
-		if (results[maxIndex].label == "RIGHT") {
-			actionQueue.push(0);
-		} else if (results[maxIndex].label == "UP") {
-			actionQueue.push(1);
-		} else if (results[maxIndex].label == "LEFT") {
-			actionQueue.push(2);
-		} else if (results[maxIndex].label == "DOWN") {
-			actionQueue.push(3);
-		}
-
-		directionDiv.innerHTML = results[maxIndex].label;
+		// directionDiv.innerHTML = results[maxIndex].label;
 	}
 
 	if (mode == 'load') {
