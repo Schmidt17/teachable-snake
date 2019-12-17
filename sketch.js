@@ -3,23 +3,34 @@ let classifier;
 
 // Teachable Machine model URL:
 // let soundModel = 'https://teachablemachine.withgoogle.com/models/82Y5yAEQ/model.json';
-let soundModel = 'https://teachablemachine.withgoogle.com/models/ZOeMc4-H/model.json';
+// let soundModel = 'https://teachablemachine.withgoogle.com/models/ZOeMc4-H/model.json';  // LEFT RIGHT UP DOWN
+let soundModel;
 
 let apple, headImg;
 
+
 function preload() {
-  // Load the model
-  classifier = ml5.soundClassifier(soundModel, {invokeCallbackOnNoiseAndUnknown: true, overlapFactor: 0.9});
-  // bgImage = loadImage("bg.jpg");
-  // bgImage.resize(width, height);
+  // Read the model url from file and pass it to loadClassifier()
+  loadStrings('url.txt', loadClassifier);
+  
   apple = loadImage("apple.png");
   headImg = loadImage("head.png");
   apple.resize(17, 17)
 }
 
+function loadClassifier (fileStrings) {
+	let url = fileStrings[0];
+	if (url.charAt(url.length - 1) != '/') {
+		url += "/";
+	}
+	let modelURL = url + "model.json";
+    // Load the model
+    classifier = ml5.soundClassifier(modelURL, {invokeCallbackOnNoiseAndUnknown: true, overlapFactor: 0.9});
+}
+
 let snake;
 let currentDirection;
-let fieldSize, paintSize, offset;
+let fieldSize, paintSize, headSize, offset;
 let foodLocation;
 let N;
 let bgImage, scoreDiv, directionDiv, initDiv;
@@ -35,7 +46,7 @@ function Point(x, y) {
 }
 
 function setup() {
-  var cnv = createCanvas(400, 400);
+  var cnv = createCanvas(800, 800);
 
   var x = (windowWidth - width) / 2;
   var y = (windowHeight - height) / 2;
@@ -54,8 +65,9 @@ function setup() {
 
   rectMode(CENTER);
 
-  fieldSize = 20;
-  paintSize = 17; 
+  fieldSize = int(width / 20);
+  paintSize = fieldSize - 3; 
+  headSize = fieldSize + 5;
   offset = fieldSize / 2;
   N = int(width / fieldSize);
 
@@ -78,7 +90,7 @@ function setup() {
 }
 
 function draw() {
-  if (mode == 'load') {
+  if ((mode == 'load') || (mode == 'pause')) {
   	  background(0, 40, 0);
   } else if (mode == 'play') {
   	  // update game state
@@ -101,7 +113,7 @@ function draw() {
 	  drawSnake();
 	  for (let s of stars) {
 	  	if (s.radius < 2*width) {
-		  	s.radius += 2;
+		  	s.radius += 3;
 		  	s.draw();
 		}
 	  }
@@ -155,7 +167,7 @@ function drawFood() {
   noStroke();
   fill(255, 50, 50);
   //rect(fieldSize * foodLocation.x + offset, fieldSize * foodLocation.y + offset, paintSize, paintSize);
-  image(apple, fieldSize * foodLocation.x + offset - 10, fieldSize * foodLocation.y + offset - 13, fieldSize+2, fieldSize+2);
+  image(apple, fieldSize * foodLocation.x + offset - fieldSize/2 + 2, fieldSize * foodLocation.y + offset - fieldSize/2 - 1, fieldSize - 1, fieldSize - 1);
 }
 
 function drawSnake() {
@@ -168,7 +180,7 @@ function drawSnake() {
   // draw head as image
   // draw it last so it is on top of the segments
   // image(headImg, fieldSize * snake[0].x + offset - 10, fieldSize * snake[0].y + offset - 13, fieldSize+2, fieldSize+2);
-  image(headImg, fieldSize * snake[0].x + offset - 10, fieldSize * snake[0].y + offset - 13, fieldSize+5, fieldSize+5);
+  image(headImg, fieldSize * snake[0].x + offset - int(2 * headSize / 5), fieldSize * snake[0].y + offset - int(headSize / 2), fieldSize+5, fieldSize+5);
 }
 
 function moveSnake() {
@@ -212,6 +224,18 @@ function keyPressed() {
 		actionQueue.push(2);
 	} else if (keyCode === DOWN_ARROW) {
 		actionQueue.push(3);
+	} else if (keyCode === 80) {  // key 'p'
+		if (mode == "play") {
+			mode = "pause";
+		} else if (mode == "pause") {
+			mode = "play";
+		}
+	} else if (keyCode === 171) {  // key '+'
+		frameRate(frameRate() + 1);
+	} else if (keyCode === 173) {  // key '-'
+		frameRate(frameRate() - 1);
+	} else if (keyCode === 48) {  // key '0'
+		frameRate(5);
 	}
 }
 

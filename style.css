@@ -14,7 +14,7 @@ canvas {
 #score {
   visibility: hidden;
   font-family: Arial;
-  font-size: 24pt;
+  font-size: 28pt;
   color: #ffffff;
   display: inline-block;
   position: absolute;
@@ -43,4 +43,26 @@ canvas {
   position: absolute;
   left: 780px;
   top: 103px;
+}
+
+#ui {
+  width: 100%;
+  margin: 100px auto;
+  text-align: center;
+}
+
+#savebtn {
+  margin-top: 50px;
+  width: 100px;
+  height: 40px;
+}
+
+#urlinput {
+  width: 800px;
+}
+
+#msg {
+  width: 100%;
+  text-align: center;
+  color: white;
 }
