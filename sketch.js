@@ -77,7 +77,7 @@ function setup() {
 
   initializeGame();
 
-  frameRate(5);
+  frameRate(3);
   drawFood();
   drawSnake();
   
@@ -230,7 +230,7 @@ function keyPressed() {
 	} else if (keyCode === 173) {  // key '-'
 		frameRate(frameRate() - 1);
 	} else if (keyCode === 48) {  // key '0'
-		frameRate(5);
+		frameRate(3);
 	}
 }
 
