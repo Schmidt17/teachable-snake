@@ -9,16 +9,14 @@ let apple, headImg;
 
 
 function preload() {
-  // Read the model url from the GET parameters
-  let modelURL = window.location.search.substr(1);
-  if (modelURL.length > 0) {
-  	if (modelURL.charAt(modelURL.length - 1) != '/') {
-		modelURL += "/";
-	}
-	modelURL += "model.json";
-  } else {
-  	modelURL = 'https://teachablemachine.withgoogle.com/models/ZOeMc4-H/model.json';  // LEFT RIGHT UP DOWN
+  // Read the model ID from the GET parameters
+  let modelID = window.location.search.substr(1);
+  
+  if (modelID.length == 0) {
+  	modelID = 'ZOeMc4-H';  // LEFT RIGHT UP DOWN
   }
+
+  let modelURL = "https://teachablemachine.withgoogle.com/models/" + modelID + "/model.json";
   classifier = ml5.soundClassifier(modelURL, {invokeCallbackOnNoiseAndUnknown: true, overlapFactor: 0.9});
   
   apple = loadImage("apple.png");
