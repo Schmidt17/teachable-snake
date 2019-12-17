@@ -4,28 +4,26 @@ let classifier;
 // Teachable Machine model URL:
 // let soundModel = 'https://teachablemachine.withgoogle.com/models/82Y5yAEQ/model.json';
 // let soundModel = 'https://teachablemachine.withgoogle.com/models/ZOeMc4-H/model.json';  // LEFT RIGHT UP DOWN
-let soundModel;
 
 let apple, headImg;
 
 
 function preload() {
-  // Read the model url from file and pass it to loadClassifier()
-  loadStrings('url.txt', loadClassifier);
+  // Read the model url from the GET parameters
+  let modelURL = window.location.search.substr(1);
+  if (modelURL.length > 0) {
+  	if (modelURL.charAt(modelURL.length - 1) != '/') {
+		modelURL += "/";
+	}
+	modelURL += "model.json";
+  } else {
+  	modelURL = 'https://teachablemachine.withgoogle.com/models/ZOeMc4-H/model.json';  // LEFT RIGHT UP DOWN
+  }
+  classifier = ml5.soundClassifier(modelURL, {invokeCallbackOnNoiseAndUnknown: true, overlapFactor: 0.9});
   
   apple = loadImage("apple.png");
   headImg = loadImage("head.png");
   apple.resize(17, 17)
-}
-
-function loadClassifier (fileStrings) {
-	let url = fileStrings[0];
-	if (url.charAt(url.length - 1) != '/') {
-		url += "/";
-	}
-	let modelURL = url + "model.json";
-    // Load the model
-    classifier = ml5.soundClassifier(modelURL, {invokeCallbackOnNoiseAndUnknown: true, overlapFactor: 0.9});
 }
 
 let snake;
@@ -33,9 +31,8 @@ let currentDirection;
 let fieldSize, paintSize, headSize, offset;
 let foodLocation;
 let N;
-let bgImage, scoreDiv, directionDiv, initDiv;
+let scoreDiv, directionDiv, initDiv;
 let stars;
-let amplitude, microp, audiocontext;
 
 let actionQueue;
 let mode;
