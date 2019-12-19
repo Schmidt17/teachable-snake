@@ -7,6 +7,8 @@ let classifier;
 
 let apple, headImg;
 
+let defaultFramerate = 2;
+
 
 function preload() {
   // Read the model ID from the GET parameters
@@ -77,7 +79,7 @@ function setup() {
 
   initializeGame();
 
-  frameRate(3);
+  frameRate(defaultFramerate);
   drawFood();
   drawSnake();
   
@@ -116,7 +118,7 @@ function draw() {
 }
 
 function initializeGame() {
-  frameRate(5);
+  frameRate(defaultFramerate);
   snake = [new Point(10, 10)]
   currentDirection = 0;	 // start moving to the right
   actionQueue = [];
@@ -230,7 +232,7 @@ function keyPressed() {
 	} else if (keyCode === 173) {  // key '-'
 		frameRate(frameRate() - 1);
 	} else if (keyCode === 48) {  // key '0'
-		frameRate(3);
+		frameRate(defaultFramerate);
 	}
 }
 
